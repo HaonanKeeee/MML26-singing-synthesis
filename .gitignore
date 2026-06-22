@@ -1,0 +1,14 @@
+*.pyc
+*.wav
+*.csv
+*.tsv
+*.txt
+*.json
+*.mid
+*.midi
+*.npz
+.python-version
+venv/
+outputs/
+wandb/
+acoustic_augmentations
