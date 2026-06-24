@@ -44,6 +44,7 @@ Since it is very minimal, feel free to experiment around! use random syllables f
 You can see an example of the annotations overlayed with a log-spectrogram.
 ![example of annotation](example-sonic-visualizer.png)
 Horizontal axis -> Time
+
 Vertical axis -> Frequency (log)
 
 ## Ok, we have generated the data, and the model is now training. 
