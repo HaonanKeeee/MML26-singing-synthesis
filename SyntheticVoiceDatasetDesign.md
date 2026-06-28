@@ -4,6 +4,8 @@ This document describes the planned synthetic singing dataset strategy for the K
 
 The goal is not to generate realistic lyrics. The goal is to generate label-preserving, vocal-like audio from the provided note annotations so the transcription model learns onset, offset, and pitch from diverse singing-like signals.
 
+Important implementation boundary: the current pure algorithmic backend is a debugging/baseline synthesizer, not a realistic human singer. It can keep labels aligned and make syllable changes audible, but realistic human timbre likely requires a sample-based or hybrid vocal backend.
+
 ## Core Principle
 
 Each provided TSV contains only:
@@ -21,6 +23,61 @@ Priority order:
 ```text
 label accuracy > vocal-like timbre > pronunciation variety > realism of lyrics
 ```
+
+## Pitch And Timing Conventions
+
+The TSV pitch column is a MIDI semitone number, not a frequency in Hertz and not a pitch-class-only label. The numeric MIDI value is the authoritative label.
+
+Use the standard twelve-tone equal temperament MIDI conversion:
+
+```text
+frequency_hz = 440.0 * 2 ** ((midi_pitch - 69) / 12)
+```
+
+Important reference values:
+
+```text
+MIDI 69 = A4 = 440.00 Hz
+MIDI 60 = C4 = 261.63 Hz in the common scientific pitch naming convention
+MIDI 72 = C5 = 523.25 Hz
+```
+
+Some libraries or DAWs may display octave names differently, for example C3 instead of C4 for MIDI 60. This does not change the dataset label. In this project, always trust the MIDI number and the frequency formula, not the displayed octave name.
+
+Pitch-class calculations use:
+
+```text
+pitch_class = midi_pitch % 12
+```
+
+where pitch classes follow the usual MIDI ordering:
+
+```text
+0=C, 1=C#/Db, 2=D, 3=D#/Eb, 4=E, 5=F,
+6=F#/Gb, 7=G, 8=G#/Ab, 9=A, 10=A#/Bb, 11=B
+```
+
+The current project model and dataloader use 127 pitch bins, indexed `0..126`. Therefore generated `score.tsv` files should keep integer MIDI labels inside this project range. The provided visible TSV files currently span MIDI `29..83`, which is a normal singing-range subset and safely inside the project range.
+
+Small pitch details are measured in cents:
+
+```text
+100 cents = 1 semitone
+1200 cents = 1 octave
+frequency_ratio = 2 ** (cents / 1200)
+```
+
+Detune, vibrato, scoop, fall-in, and portamento may move the audio frequency by a few cents around the target pitch, but they must stay centered on the TSV MIDI label. They must not create a new TSV note and must not make the stable perceived pitch become another semitone.
+
+The project audio grid is:
+
+```text
+sample_rate = 16000 Hz
+hop_length = 256 samples
+frame_duration = 256 / 16000 = 0.016 seconds
+```
+
+So TSV times are continuous seconds, but training labels are quantized to about 16 ms frames. A note at `onset=0.500` seconds maps to approximately frame `round(0.500 / 0.016) = 31`.
 
 ## Required Dataset Layout
 
@@ -46,14 +103,26 @@ syntheticdataset/male/young/ah/audio.wav
 
 unless the official dataloader is changed. The safer design is to encode voice and generation settings in the sample folder name and `metadata.json`.
 
-## One TSV Generates Multiple WAVs
+## One TSV Generates Range-Compatible Age/Gender/Style WAVs
 
-Each input TSV should generate multiple audio versions. A generated sample is:
+Each input TSV can generate one sample for each selected age, gender, and style
+combination. The debug full-grid setting is:
+
+```text
+3 genders x 5 ages x 8 styles = 120 WAVs per TSV
+```
+
+The current safer default is range-aware: compute the TSV pitch summary first,
+then skip age/gender presets whose broad singing range is incompatible with the
+score. Use `--voice-range-filter off` when the full debug grid is needed.
+
+A generated sample is:
 
 ```text
 one source TSV
-+ one fixed voice preset
-+ one fixed generation policy
++ one fixed gender preset
++ one fixed age preset
++ one fixed style bundle
 + random note-level and phrase-level variations
 -> one audio.wav
 ```
@@ -64,7 +133,9 @@ The score labels remain unchanged:
 source score.tsv -> copied score.tsv
 ```
 
-Only the rendered audio differs across generated samples.
+Only the rendered audio differs across generated samples. The default generator
+does not need an extra random `version` dimension; `version_index` remains as a
+repeat/debug knob and defaults to one repeat per age/gender/style combination.
 
 ## Fixed Per Generated WAV
 
@@ -122,6 +193,47 @@ neutral_teen
 neutral_child
 ```
 
+### Voice Range Compatibility
+
+The TSV cannot tell us the original singer's gender or age, but it can tell us
+whether a synthetic voice preset is plausible for the melody. Before generating
+the age/gender/style grid, compute robust pitch statistics:
+
+```text
+min_pitch
+max_pitch
+p05_pitch
+median_pitch
+p95_pitch
+mean_pitch
+```
+
+Use `p05_pitch..p95_pitch` rather than raw min/max so a few ornamental or
+outlier notes do not reject an otherwise reasonable voice.
+
+Current broad MIDI range profiles:
+
+```text
+male_low:    comfortable 40..64, allowed 36..67
+male_tenor:  comfortable 45..72, allowed 40..76
+neutral:     comfortable 48..76, allowed 43..80
+female_alto: comfortable 52..76, allowed 48..80
+female_high: comfortable 57..83, allowed 52..86
+child:       comfortable 60..81, allowed 55..84
+```
+
+Current filter modes:
+
+```text
+allowed:     keep comfortable and extended-range voices; skip incompatible voices
+comfortable: keep only comfortable voices
+off:         keep the full age/gender/style grid for debugging
+```
+
+This filter is not meant to recover the real singer identity. It only avoids
+training on obviously fake combinations such as a very low male preset forced
+to sing a mostly high soprano-range TSV.
+
 ### Overall Style
 
 One generated WAV should use a fixed overall style preset:
@@ -139,6 +251,19 @@ vibrato_expressive
 
 The style controls the global tendency. Individual notes may still vary slightly inside the WAV.
 
+The current grid generator binds each style to a stable policy bundle:
+
+```text
+clean:              vowel_heavy, clean pitch, no vibrato, no transition
+breathy:            breath_phrase_mix, mild detune, light vibrato, light_scoop
+bright:             pop_syllable_mix, mild detune, light vibrato, pop_scoop
+dark:               vowel_heavy, mild detune, normal vibrato, light_scoop
+nasal:              soft_syllable_mix, mild detune, light vibrato, no transition
+soft_attack:        soft_syllable_mix, clean pitch, light vibrato, no transition
+vibrato_light:      soft_syllable_mix, mild detune, light vibrato, light_scoop
+vibrato_expressive: pop_syllable_mix, expressive detune, expressive vibrato, expressive_slide
+```
+
 ### Pitch Imperfection Policy
 
 The nominal target pitch remains the TSV MIDI pitch. The policy defines how much micro-detuning is allowed.
@@ -151,15 +276,35 @@ mild_detune
 expressive_detune
 ```
 
-Suggested distribution:
+Every note may have tiny natural micro-variation. This is not treated as
+"running out of tune"; it is just normal human-like pitch-center variation.
+
+Suggested micro-variation:
 
 ```text
-intune:            0 to 8 cents
-mild_detune:       +/- 10 to 25 cents
-expressive_detune: +/- 25 to 40 cents, rare
+intune:            usually within +/- 6 cents
+mild_detune:       usually within +/- 8 cents
+expressive_detune: usually within +/- 10 cents
 ```
 
-Avoid frequent deviations above 50 cents because the label still says the original MIDI pitch.
+Noticeable detune is stricter and must be planned at whole-WAV scope:
+
+```text
+intune policy: noticeable_detune_notes = 0
+noticeable_detune_notes <= 10% of notes in one WAV
+noticeable_detune_duration <= 8% of total sung note duration in one WAV
+```
+
+Recommended noticeable-detune magnitude:
+
+```text
+70%: 10 to 25 cents
+25%: 25 to 40 cents
+5%:  40 to 50 cents
+```
+
+Avoid deviations above 50 cents in the main training set because the label still
+says the original MIDI pitch.
 
 Pitch imperfection means small pitch-center variation around the target pitch. It is different from pitch transitions and vibrato.
 
@@ -179,13 +324,19 @@ expressive
 Suggested ranges:
 
 ```text
-rate: 4 to 7 Hz
-light depth: 5 to 15 cents
-normal depth: 10 to 35 cents
-expressive depth: 25 to 50 cents, sparse
+only consider vibrato when note_duration >= 1500 ms
+rate: 0.65 to 0.95 Hz for the current WORLD/TTS renderer
+light depth: 2 to 5 cents
+normal depth: 3 to 8 cents
+expressive depth: 5 to 12 cents, sparse
 ```
 
-Vibrato should usually start after the note onset, not immediately at the attack.
+Vibrato should usually start well after the note onset, not immediately at the
+attack. The current renderer delays it roughly 550 to 950 ms, capped by the
+note duration, and fades it in over about 200 ms. These values are intentionally
+slower and shallower than typical human vocal-vibrato measurements because the
+current WORLD plus TTS-unit renderer makes faster modulation sound too
+mechanical.
 
 Vibrato means periodic pitch movement around the target pitch. It must remain centered on the TSV pitch.
 
@@ -208,7 +359,6 @@ Definitions:
 scoop: start slightly below the target pitch and glide up
 fall_in: start slightly above the target pitch and settle down
 portamento: glide between neighboring notes in a connected phrase
-turn: very short decorative pitch movement around the target
 ```
 
 Important rule:
@@ -219,27 +369,51 @@ pitch transition is an ornament layer, not a label layer
 
 The TSV pitch remains the target and should dominate the note. Transitions should be short and should not make the note sound like a different labeled pitch.
 
-Safe first-pass limits:
+Safe first-pass transition eligibility:
 
 ```text
-transition duration <= min(60 ms, note_duration * 0.15)
-transition depth <= 30 cents
-stable target region >= 70% of note duration
+only consider pitch transitions when note_duration >= 500 ms
+transition_notes target about 80% of eligible long notes in one WAV
+do not put noticeable stable detune and transition on the same note
 ```
 
-Optional expressive limits:
+Direction distribution:
 
 ```text
-transition duration <= min(80 ms, note_duration * 0.20)
-transition depth <= 50 cents
-stable target region >= 70% of note duration
+low_to_target_scoop: dominant, usually 70% to 80%
+high_to_target_fall_in: smaller, usually 15% to 20%
+short_portamento_from_previous_note: rare, usually 5% to 10%
 ```
 
-Avoid pitch transitions on very short notes. A useful rule is to only consider them when:
+Duration is proportional to target-note duration, then clamped:
 
 ```text
-note_duration > 250 ms
+short transition, about 50% of transition events:
+    note_duration * 0.08 to 0.12, clamped to 60 to 120 ms
+
+medium transition, about 40% of transition events:
+    note_duration * 0.12 to 0.18, clamped to 110 to 190 ms
+
+long transition, about 10% of transition events:
+    note_duration * 0.18 to 0.24, clamped to 180 to 280 ms
+    only for very long notes
 ```
+
+The current renderer uses these longer-than-before durations because 30-40 ms
+transitions were often too fast to hear clearly after WORLD resynthesis.
+
+The transition curve should use smoothstep, not a hard linear ramp:
+
+```text
+pitch_offset(t) = start_offset_cents * (1 - smoothstep(t / duration))
+smoothstep(x) = 3x^2 - 2x^3
+```
+
+Extra unlabeled melodic turns, grace notes, mordents, and melisma notes are
+disabled in the MVP. "Unlabeled" means the audio adds pitches that do not exist
+in `score.tsv`. A same-syllable group across several existing TSV notes is
+allowed because those pitch changes are already labeled; it is not a decorative
+transition added inside one note.
 
 ### Syllable Policy
 
@@ -282,6 +456,98 @@ Example sequence inside one WAV:
 ah, ah, la, oh, ee, ma, na, ooh, yeah, ah
 ```
 
+### Same-Syllable Multi-Note Groups
+
+Some TSV note sequences should be rendered as one syllable carried across
+several labeled pitches. This models a purposeful sung line such as `la-a-a`,
+not a decorative scoop inside a single note.
+
+Candidate rule:
+
+```text
+next_onset - current_offset <= 40 ms
+adjacent MIDI pitch interval is 1 or 2 semitones
+all adjacent intervals move in one direction only
+maximum group size = 3 notes
+each note duration >= 180 ms
+no repeated pitch inside the selected group
+```
+
+Very short notes should not become same-syllable group members. In the current
+TTS/WORLD renderer, a 100-150 ms continuation pitch does not sound like a stable
+second sung pitch; it tends to sound like a fast wobble inside one utterance.
+
+Only a small subset of candidates should be used:
+
+```text
+select about 30% of candidate groups per WAV
+```
+
+Important assignment rule:
+
+```text
+selected same-syllable group:
+    one word/syllable may span multiple TSV pitches
+    example: La-a-a
+
+unselected adjacent notes:
+    must be treated as separate syllables/words
+    must not reuse the same word unit across consecutive pitches
+    example: not La-La-La from accidental word reuse
+```
+
+The 30% selection fraction controls how often TSV-compatible pitch sequences
+become true melisma-like same-syllable groups. It must not mean that the other
+70% reuse the same word with repeated attacks. Same-word reuse is valid only
+inside a selected group.
+
+Rendering rule:
+
+```text
+group first note:
+    normal syllable start, optional consonant, normal vowel onset
+    render the whole selected group once from this onset
+
+group continuation notes:
+    reuse the first note's syllable/vowel
+    no new consonant onset
+    no new hard attack
+    no independent note-level audio render
+    no decorative scoop/fall-in
+    allow tiny micro detune
+    no noticeable stable detune
+```
+
+For the edge-tts word-unit WORLD renderer, a selected same-syllable group is
+rendered as segmented audio with crossfaded note spans:
+
+```text
+group unit choice = prefer stable units: la, yeah
+do not use hey or oh for same-syllable groups in the current TTS/WORLD renderer
+source split = trim silence, then split the word into onset/consonant and stable vowel core
+first note source = onset/consonant + vowel core
+continuation note source = vowel core only
+segment join = short crossfade across connected note boundaries
+target F0 = each segment follows its own TSV note pitch curve
+tiny gaps inside the group = bridged by crossfade, not a new consonant
+```
+
+WORLD can replace the source F0, but it does not know phoneme boundaries. The
+renderer must therefore explicitly remove consonant-like material from
+continuation notes. Without this split, a group intended as `la-a-a` can sound
+like `la-la-la`.
+
+This is intended to sound like the first word/syllable is articulated once, then
+the later TSV pitches are sung on the same vowel. It avoids the earlier
+note-by-note continuation behavior, which reused the word but still sounded like
+separate attacks.
+
+The pitch movement inside the group comes from the TSV notes themselves, so the
+labels remain correct. Tiny micro detune is still allowed on all notes in the
+group, including continuation notes. What is disallowed after the first group
+note is decorative note-start transition such as scoop/fall-in and noticeable
+stable detune.
+
 ### Consonant Timing
 
 Consonants should be short and should not consume the stable pitch region.
@@ -301,7 +567,10 @@ consonant short, vowel long, stable pitch mainly on the vowel
 
 ### Note-Level Pitch Variation
 
-For each note, sample a small detune amount from the fixed pitch policy.
+For each note, sample small micro-variation from the fixed pitch policy.
+Noticeable stable detune is not sampled independently note by note. Instead, it
+is selected by the whole-WAV expression planner so one WAV never exceeds the
+detune note-count and duration budgets.
 
 Possible note-level components:
 
@@ -313,7 +582,9 @@ Keep these label-preserving. The pitch center should still correspond to the TSV
 
 ### Note-Level Pitch Transition Events
 
-Pitch transitions should be sampled per note according to the fixed transition policy.
+Pitch transitions should be planned at whole-WAV scope, then assigned to a
+configured subset of eligible long notes according to the fixed transition
+policy. The current default target is 80% of eligible long notes.
 
 Possible note-level events:
 
@@ -322,7 +593,6 @@ none
 low_to_target_scoop
 high_to_target_fall_in
 short_portamento_from_previous_note
-tiny_turn_around_target
 ```
 
 Context-aware tendencies:
@@ -339,7 +609,10 @@ Hard constraints:
 - do not modify the TSV pitch
 - do not extend the transition across most of the note
 - do not make the stable pitch center different from the target MIDI pitch
-- do not use strong transitions on short notes
+- do not use transitions on notes shorter than 700 ms in the current safe MVP
+- do not use decorative transitions on same-syllable continuation notes
+- do not generate true melodic turns, grace notes, mordents, or melisma unless
+  the TSV labels include those extra notes
 
 ### Phrase-Level Pitch Variation
 
@@ -507,7 +780,75 @@ la   -> consonant: l, vowel: ah
 ma   -> consonant: m, vowel: ah
 ```
 
-This avoids needing separate audio samples for every spelling.
+This avoids needing separate audio samples for every spelling. In the pure algorithmic backend, vowel profiles are intentionally exaggerated so pronunciation changes are audible. In a future sample-based backend, the same syllable representation can choose and pitch-shift real recorded units instead of relying only on synthetic formants.
+
+## Edge TTS Unit Bank
+
+`edge-tts` should be used only to create short reusable source units, not to
+directly render every TSV note.
+
+Recommended flow:
+
+```text
+edge-tts short unit bank
+-> trim / normalize / save as 16 kHz mono WAV
+-> sample-based renderer chooses a unit for each TSV note
+-> Python pitch-shifts and time-stretches to the target MIDI pitch and duration
+-> Python adds vibrato, scoop/fall-in, detune, breath, and style processing
+-> final syntheticdataset/<sample>/audio.wav + score.tsv
+```
+
+Current target sample renderer:
+
+```text
+renderer = edge_tts_word_units_world
+unit bank = voice_units/edge_tts_words_10voices
+word texture = selected edge-tts WAV word unit
+pitch support = WORLD vocoder resynthesis with TSV-aligned F0 curve
+duration support = WORLD feature resizing plus crop/pad safety
+```
+
+The previous `edge_tts_word_units_carrier` renderer made pitch audible by adding
+a separate harmonic carrier behind the TTS word texture. That is no longer the
+desired approach because the word itself did not become the target note. The
+WORLD renderer instead keeps the word unit's spectral envelope/aperiodicity and
+replaces its F0 with the TSV target pitch curve.
+
+Runtime dependency note:
+
+```text
+pyworld
+setuptools / pkg_resources
+```
+
+The current helper script is:
+
+```bash
+../.venv/bin/python scripts/generate_edge_tts_units.py \
+  --output-dir voice_units/edge_tts \
+  --unit-set mvp
+```
+
+The default MVP unit set includes:
+
+```text
+ah, eh, ee, oh, oo, uh
+la, ma, na, ya, wa
+hey, yeah, ooh, woo, whoa, doo
+ta, ka, sa, sha
+```
+
+The default voice set includes two female-labeled and two male-labeled English
+Edge voices. Age categories are not directly controlled by `edge-tts`; child,
+teen, middle, and old timbre should be simulated later by Python postprocessing
+and range-compatible preset selection.
+
+The current 10-voice word bank contains 94 user-provided English lyric-like
+words across 5 female-labeled and 5 male-labeled voices:
+
+```text
+voice_units/edge_tts_words_10voices/
+```
 
 ## Suggested Sampling Ratios
 
@@ -551,7 +892,28 @@ Example:
   "vibrato_policy": "normal",
   "pitch_transition_policy": "light_scoop",
   "random_seed": 12345,
-  "sample_rate": 16000
+  "sample_rate": 16000,
+  "syllable_group_summary": {
+    "candidate_group_count": 74,
+    "selected_group_count": 15,
+    "grouped_note_fraction": 0.11,
+    "max_group_notes": 3,
+    "max_adjacent_interval_semitones": 2,
+    "requires_monotonic_direction": true,
+    "decorative_transitions_on_continuations": false
+  },
+  "expression_summary": {
+    "noticeable_detune_count": 8,
+    "noticeable_detune_note_fraction": 0.06,
+    "noticeable_detune_duration_fraction": 0.04,
+    "transition_count": 3,
+    "transition_min_note_duration_s": 0.7,
+    "transition_curve": "smoothstep",
+    "extra_unlabeled_melisma": "disabled",
+    "protected_continuation_note_count": 12,
+    "decorative_transitions_on_continuations": false,
+    "noticeable_detune_on_continuations": false
+  }
 }
 ```
 
@@ -565,11 +927,18 @@ Optionally include the exact generated syllable and detune sequence:
       "offset": 0.9,
       "pitch": 60,
       "syllable": "la",
+      "group_id": 2,
+      "group_position": 0,
+      "group_size": 3,
+      "syllable_role": "start",
       "detune_cents": -4.2,
+      "detune_type": "micro",
       "vibrato_depth_cents": 12.0,
-      "pitch_transition": "low_to_target_scoop",
-      "transition_depth_cents": 18.0,
-      "transition_duration_ms": 45.0
+      "transition_type": "low_to_target_scoop",
+      "transition_start_cents": -28.0,
+      "transition_depth_cents": 28.0,
+      "transition_duration_s": 0.052,
+      "transition_shape": "smoothstep"
     }
   ]
 }
@@ -577,30 +946,107 @@ Optionally include the exact generated syllable and detune sequence:
 
 ## Generation Scale
 
-Avoid generating every possible combination. That would explode the dataset size.
-
-Recommended first useful scale:
+The controlled full grid remains available for debugging:
 
 ```text
-400 scores x 6 to 12 generated versions per score
-= 2400 to 4800 samples
+per TSV: 3 genders x 5 ages x 8 styles x 1 repeat = 120 samples
+400 scores x 120 samples = 48000 samples
 ```
 
-Each version should sample a different fixed voice/style/policy combination, while varying syllables and micro-expressions inside the WAV.
+The range-aware default usually generates fewer samples because incompatible
+age/gender presets are skipped. This is still conceptually simple: every score
+is heard through every compatible age/gender/style identity once, while
+note-level expression is randomized inside each WAV. For a probe or listening
+pass, restrict the grid:
+
+```text
+1 score x 3 genders x 5 ages x 8 styles = 120 samples
+1 score x 3 genders x 5 ages x 3 selected styles = 45 samples
+```
+
+Additional repeats can be generated later with `versions_per_combination > 1`.
+
+## Current Implementation Status
+
+The current scripts can generate the range-aware planned sample set for one TSV:
+
+```bash
+../.venv/bin/python scripts/build_synthetic_dataset.py \
+  --scores-dir scores \
+  --output-dir syntheticdataset_probe \
+  --limit-scores 1 \
+  --overwrite
+```
+
+This default command uses:
+
+```text
+generation_mode = grid
+voice_range_filter = allowed
+genders = male,female,neutral
+ages = child,teen,young,middle,old
+styles = clean,breathy,bright,dark,nasal,soft_attack,vibrato_light,vibrato_expressive
+versions_per_combination = 1
+```
+
+Expected upper bound for one TSV:
+
+```text
+3 genders x 5 ages x 8 styles = up to 120 sample folders
+actual count depends on TSV pitch range unless --voice-range-filter off is used
+```
+
+Each sample folder contains:
+
+```text
+audio.wav
+score.tsv
+metadata.json
+```
+
+Validated behavior as of this plan:
+
+```text
+one-TSV full-grid probe can be generated with --voice-range-filter off
+range-aware generation skips incompatible gender/age/style combinations
+edge_tts_word_units_world renderer generated 120 samples for scores/1.tsv
+all current syntheticdataset samples for the first TSV use WORLD word-unit F0 resynthesis
+10 edge-tts word voices are used across the current first-TSV grid
+dataset validator passed
+F0 audit on score_1_female_young_bright_v00: median abs error about 9.0 cents, p90 about 64.0 cents for the first 40 audited notes against the expressive target curve
+official SyntheticDataset dataloader read the generated samples
+same-syllable groups are present and capped at 3 notes
+same-syllable group units prefer vowel-friendly words and continuation notes use vowel-core sustain, not repeated consonant attacks
+noticeable detune and transition budgets stay within configured limits
+```
+
+Current audio-quality limitation:
+
+```text
+pure algorithmic synthesis is useful for end-to-end pipeline checks and weak baseline data
+edge-tts word-unit rendering adds real spoken word texture
+carrier rendering is rejected because the word itself does not carry the TSV pitch
+WORLD resynthesis is now the active first-TSV renderer so the word's F0 follows the TSV pitch
+WORLD/TTS word-unit output can still sound blurry, especially on short consonant-heavy words and long stretched vowels
+```
 
 ## MVP Generation Plan
 
 For each input TSV:
 
-1. Choose 6 to 12 generation presets.
-2. For each preset, create one sample directory.
-3. Copy the TSV to `score.tsv` with a header.
-4. Generate a phrase-aware syllable sequence inside the WAV.
-5. Render a vocal-like waveform with formants, harmonics, envelope, breath, vibrato, small pitch imperfections, and short label-preserving pitch transitions.
-6. Normalize audio safely.
-7. Write `audio.wav`.
-8. Write `metadata.json`.
-9. Validate duration, sample rate, silence, clipping, and TSV alignment.
+1. Iterate over the selected gender, age, and style grid.
+2. Compute TSV pitch statistics and skip incompatible age/gender presets unless the voice-range filter is off.
+3. For each remaining age/gender/style combination, create one sample directory.
+4. Copy the TSV to `score.tsv` with a header.
+5. Plan same-syllable multi-note groups from stepwise connected TSV notes.
+6. Generate a phrase-aware syllable/word-unit sequence inside the WAV, rendering each selected same-syllable group as one continuous word-onset plus vowel-sustain span.
+   Different WAVs generated from the same TSV should not reuse an identical full word-unit sequence; the edge-tts word renderer checks for exact sequence collisions within one TSV generation run and retries with a different seed if needed.
+7. Plan whole-WAV expression budgets for noticeable detune and long-note transitions, protecting same-syllable continuation notes from decorative transitions.
+8. Render a waveform with either the algorithmic backend or the edge-tts word-unit backend.
+9. Normalize audio safely.
+10. Write `audio.wav`.
+11. Write `metadata.json`.
+12. Validate duration, sample rate, silence, clipping, and TSV alignment.
 
 ## Things To Avoid
 
@@ -611,4 +1057,6 @@ For each input TSV:
 - Do not make pitch drift so large that the MIDI label becomes wrong.
 - Do not treat pitch transitions as new labels; they are short singer ornaments around the original TSV pitch.
 - Do not let a scoop, fall-in, slide, or turn occupy most of a note.
+- Do not generate true melodic turns or melisma unless the TSV labels contain those notes.
+- Do not add decorative scoop/fall-in to continuation notes inside a selected same-syllable group.
 - Do not create nested dataset folders unless the dataloader is changed.

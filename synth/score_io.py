@@ -12,6 +12,7 @@ from typing import Iterable
 
 
 SCORE_HEADER = "# onset,offset,note"
+PROJECT_PITCH_BINS = 127
 
 
 @dataclass(frozen=True)
@@ -62,8 +63,15 @@ def load_score_tsv(path: str | Path) -> list[Note]:
                 f"Invalid note duration in {score_path}:{line_number}: "
                 f"onset={onset}, offset={offset}"
             )
-        if not (0 <= pitch <= 127):
-            raise ValueError(f"Invalid MIDI pitch in {score_path}:{line_number}: {pitch}")
+        if not _is_integer_pitch(pitch):
+            raise ValueError(
+                f"Invalid non-integer MIDI pitch in {score_path}:{line_number}: {pitch}"
+            )
+        if not (0 <= int(round(pitch)) < PROJECT_PITCH_BINS):
+            raise ValueError(
+                f"Invalid project MIDI pitch in {score_path}:{line_number}: {pitch}. "
+                f"The current model/dataloader uses pitch bins 0-{PROJECT_PITCH_BINS - 1}."
+            )
         notes.append(Note(onset=onset, offset=offset, pitch=pitch))
 
     if not notes:
@@ -81,6 +89,12 @@ def write_score_tsv(path: str | Path, notes: Iterable[Note]) -> None:
     for note in notes:
         lines.append(f"{note.onset:.6f}\t{note.offset:.6f}\t{note.pitch:.6f}")
     output_path.write_text("\n".join(lines) + "\n")
+
+
+def _is_integer_pitch(pitch: float, tolerance: float = 1e-6) -> bool:
+    """Return whether a TSV pitch is an integer MIDI semitone label."""
+
+    return abs(pitch - round(pitch)) <= tolerance
 
 
 def split_phrases(notes: list[Note], gap_threshold_s: float = 0.45) -> list[list[int]]:
@@ -109,4 +123,3 @@ def last_offset(notes: Iterable[Note]) -> float:
     """Return the final note offset in seconds."""
 
     return max(note.offset for note in notes)
-

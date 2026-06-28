@@ -6,6 +6,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from .syllable_groups import SyllableGroupMark
+
 
 @dataclass(frozen=True)
 class Syllable:
@@ -108,6 +110,7 @@ def choose_syllables_for_notes(
     phrases: list[list[int]],
     policy_name: str,
     rng: np.random.Generator,
+    group_marks: list[SyllableGroupMark] | None = None,
 ) -> list[Syllable]:
     """Assign one syllable to each note.
 
@@ -132,15 +135,64 @@ def choose_syllables_for_notes(
 
     for phrase in phrases:
         phrase_category = int(rng.choice(len(categories), p=category_weights))
-        phrase_syllable = rng.choice(categories[phrase_category])
+        phrase_syllable = _choose_audibly_different_syllable(
+            categories[phrase_category],
+            previous=None,
+            rng=rng,
+        )
         repeat_span = int(rng.integers(2, 5))
 
         for local_index, note_index in enumerate(phrase):
             if local_index == 0 or local_index % repeat_span == 0 or rng.random() < 0.35:
                 category = int(rng.choice(len(categories), p=category_weights))
-                phrase_syllable = rng.choice(categories[category])
+                phrase_syllable = _choose_audibly_different_syllable(
+                    categories[category],
+                    previous=phrase_syllable,
+                    rng=rng,
+                )
                 repeat_span = int(rng.integers(2, 5))
             result[note_index] = phrase_syllable
 
-    return [syllable if syllable is not None else CORE_VOWELS["ah"] for syllable in result]
+    syllables = [syllable if syllable is not None else CORE_VOWELS["ah"] for syllable in result]
+    if group_marks is not None:
+        _apply_same_syllable_groups(syllables, group_marks)
+    return syllables
 
+
+def _choose_audibly_different_syllable(
+    candidates: list[Syllable],
+    previous: Syllable | None,
+    rng: np.random.Generator,
+) -> Syllable:
+    """Choose a syllable while avoiding immediate vowel repeats when possible."""
+
+    if previous is None:
+        return rng.choice(candidates)
+
+    different = [
+        syllable
+        for syllable in candidates
+        if syllable.vowel != previous.vowel or syllable.glide_to != previous.glide_to
+    ]
+    if different:
+        return rng.choice(different)
+    return rng.choice(candidates)
+
+
+def _apply_same_syllable_groups(
+    syllables: list[Syllable],
+    group_marks: list[SyllableGroupMark],
+) -> None:
+    """Reuse the first note's syllable throughout each selected group."""
+
+    group_syllables: dict[int, Syllable] = {}
+    for index, mark in enumerate(group_marks):
+        if mark.group_id is None:
+            continue
+        if mark.group_position == 0:
+            group_syllables[mark.group_id] = syllables[index]
+
+    for index, mark in enumerate(group_marks):
+        if mark.group_id is None or mark.group_position == 0:
+            continue
+        syllables[index] = group_syllables.get(mark.group_id, syllables[index])

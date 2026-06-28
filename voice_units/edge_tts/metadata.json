@@ -1,0 +1,897 @@
+{
+  "generator": "edge-tts",
+  "sample_rate": 16000,
+  "unit_count": 21,
+  "voice_count": 4,
+  "generated_count": 21,
+  "skipped_existing_count": 63,
+  "failed_count": 0,
+  "voices": [
+    {
+      "label": "female_aria",
+      "voice": "en-US-AriaNeural"
+    },
+    {
+      "label": "female_jenny",
+      "voice": "en-US-JennyNeural"
+    },
+    {
+      "label": "male_guy",
+      "voice": "en-US-GuyNeural"
+    },
+    {
+      "label": "male_andrew",
+      "voice": "en-US-AndrewNeural"
+    }
+  ],
+  "units": [
+    {
+      "key": "ah",
+      "text": "ah",
+      "group": "vowel"
+    },
+    {
+      "key": "eh",
+      "text": "eh",
+      "group": "vowel"
+    },
+    {
+      "key": "ee",
+      "text": "ee",
+      "group": "vowel"
+    },
+    {
+      "key": "oh",
+      "text": "oh",
+      "group": "vowel"
+    },
+    {
+      "key": "oo",
+      "text": "ooh",
+      "group": "vowel"
+    },
+    {
+      "key": "uh",
+      "text": "uh",
+      "group": "vowel"
+    },
+    {
+      "key": "la",
+      "text": "la",
+      "group": "soft"
+    },
+    {
+      "key": "ma",
+      "text": "ma",
+      "group": "soft"
+    },
+    {
+      "key": "na",
+      "text": "na",
+      "group": "soft"
+    },
+    {
+      "key": "ya",
+      "text": "ya",
+      "group": "soft"
+    },
+    {
+      "key": "wa",
+      "text": "wa",
+      "group": "soft"
+    },
+    {
+      "key": "hey",
+      "text": "hey",
+      "group": "pop"
+    },
+    {
+      "key": "yeah",
+      "text": "yeah",
+      "group": "pop"
+    },
+    {
+      "key": "ooh",
+      "text": "ooh",
+      "group": "pop"
+    },
+    {
+      "key": "woo",
+      "text": "woo",
+      "group": "pop"
+    },
+    {
+      "key": "whoa",
+      "text": "whoa",
+      "group": "pop"
+    },
+    {
+      "key": "doo",
+      "text": "doo",
+      "group": "pop"
+    },
+    {
+      "key": "ta",
+      "text": "ta",
+      "group": "consonant"
+    },
+    {
+      "key": "ka",
+      "text": "ka",
+      "group": "consonant"
+    },
+    {
+      "key": "sa",
+      "text": "sa",
+      "group": "consonant"
+    },
+    {
+      "key": "sha",
+      "text": "sha",
+      "group": "consonant"
+    }
+  ],
+  "files": [
+    {
+      "voice_label": "female_aria",
+      "edge_voice": "en-US-AriaNeural",
+      "unit": "ah",
+      "text": "ah",
+      "group": "vowel",
+      "wav_path": "voice_units/edge_tts/female_aria/ah.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_aria",
+      "edge_voice": "en-US-AriaNeural",
+      "unit": "eh",
+      "text": "eh",
+      "group": "vowel",
+      "wav_path": "voice_units/edge_tts/female_aria/eh.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_aria",
+      "edge_voice": "en-US-AriaNeural",
+      "unit": "ee",
+      "text": "ee",
+      "group": "vowel",
+      "wav_path": "voice_units/edge_tts/female_aria/ee.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_aria",
+      "edge_voice": "en-US-AriaNeural",
+      "unit": "oh",
+      "text": "oh",
+      "group": "vowel",
+      "wav_path": "voice_units/edge_tts/female_aria/oh.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_aria",
+      "edge_voice": "en-US-AriaNeural",
+      "unit": "oo",
+      "text": "ooh",
+      "group": "vowel",
+      "wav_path": "voice_units/edge_tts/female_aria/oo.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_aria",
+      "edge_voice": "en-US-AriaNeural",
+      "unit": "uh",
+      "text": "uh",
+      "group": "vowel",
+      "wav_path": "voice_units/edge_tts/female_aria/uh.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_aria",
+      "edge_voice": "en-US-AriaNeural",
+      "unit": "la",
+      "text": "la",
+      "group": "soft",
+      "wav_path": "voice_units/edge_tts/female_aria/la.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_aria",
+      "edge_voice": "en-US-AriaNeural",
+      "unit": "ma",
+      "text": "ma",
+      "group": "soft",
+      "wav_path": "voice_units/edge_tts/female_aria/ma.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_aria",
+      "edge_voice": "en-US-AriaNeural",
+      "unit": "na",
+      "text": "na",
+      "group": "soft",
+      "wav_path": "voice_units/edge_tts/female_aria/na.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_aria",
+      "edge_voice": "en-US-AriaNeural",
+      "unit": "ya",
+      "text": "ya",
+      "group": "soft",
+      "wav_path": "voice_units/edge_tts/female_aria/ya.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_aria",
+      "edge_voice": "en-US-AriaNeural",
+      "unit": "wa",
+      "text": "wa",
+      "group": "soft",
+      "wav_path": "voice_units/edge_tts/female_aria/wa.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_aria",
+      "edge_voice": "en-US-AriaNeural",
+      "unit": "hey",
+      "text": "hey",
+      "group": "pop",
+      "wav_path": "voice_units/edge_tts/female_aria/hey.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_aria",
+      "edge_voice": "en-US-AriaNeural",
+      "unit": "yeah",
+      "text": "yeah",
+      "group": "pop",
+      "wav_path": "voice_units/edge_tts/female_aria/yeah.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_aria",
+      "edge_voice": "en-US-AriaNeural",
+      "unit": "ooh",
+      "text": "ooh",
+      "group": "pop",
+      "wav_path": "voice_units/edge_tts/female_aria/ooh.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_aria",
+      "edge_voice": "en-US-AriaNeural",
+      "unit": "woo",
+      "text": "woo",
+      "group": "pop",
+      "wav_path": "voice_units/edge_tts/female_aria/woo.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_aria",
+      "edge_voice": "en-US-AriaNeural",
+      "unit": "whoa",
+      "text": "whoa",
+      "group": "pop",
+      "wav_path": "voice_units/edge_tts/female_aria/whoa.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_aria",
+      "edge_voice": "en-US-AriaNeural",
+      "unit": "doo",
+      "text": "doo",
+      "group": "pop",
+      "wav_path": "voice_units/edge_tts/female_aria/doo.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_aria",
+      "edge_voice": "en-US-AriaNeural",
+      "unit": "ta",
+      "text": "ta",
+      "group": "consonant",
+      "wav_path": "voice_units/edge_tts/female_aria/ta.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_aria",
+      "edge_voice": "en-US-AriaNeural",
+      "unit": "ka",
+      "text": "ka",
+      "group": "consonant",
+      "wav_path": "voice_units/edge_tts/female_aria/ka.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_aria",
+      "edge_voice": "en-US-AriaNeural",
+      "unit": "sa",
+      "text": "sa",
+      "group": "consonant",
+      "wav_path": "voice_units/edge_tts/female_aria/sa.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_aria",
+      "edge_voice": "en-US-AriaNeural",
+      "unit": "sha",
+      "text": "sha",
+      "group": "consonant",
+      "wav_path": "voice_units/edge_tts/female_aria/sha.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_jenny",
+      "edge_voice": "en-US-JennyNeural",
+      "unit": "ah",
+      "text": "ah",
+      "group": "vowel",
+      "wav_path": "voice_units/edge_tts/female_jenny/ah.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_jenny",
+      "edge_voice": "en-US-JennyNeural",
+      "unit": "eh",
+      "text": "eh",
+      "group": "vowel",
+      "wav_path": "voice_units/edge_tts/female_jenny/eh.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_jenny",
+      "edge_voice": "en-US-JennyNeural",
+      "unit": "ee",
+      "text": "ee",
+      "group": "vowel",
+      "wav_path": "voice_units/edge_tts/female_jenny/ee.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_jenny",
+      "edge_voice": "en-US-JennyNeural",
+      "unit": "oh",
+      "text": "oh",
+      "group": "vowel",
+      "wav_path": "voice_units/edge_tts/female_jenny/oh.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_jenny",
+      "edge_voice": "en-US-JennyNeural",
+      "unit": "oo",
+      "text": "ooh",
+      "group": "vowel",
+      "wav_path": "voice_units/edge_tts/female_jenny/oo.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_jenny",
+      "edge_voice": "en-US-JennyNeural",
+      "unit": "uh",
+      "text": "uh",
+      "group": "vowel",
+      "wav_path": "voice_units/edge_tts/female_jenny/uh.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_jenny",
+      "edge_voice": "en-US-JennyNeural",
+      "unit": "la",
+      "text": "la",
+      "group": "soft",
+      "wav_path": "voice_units/edge_tts/female_jenny/la.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_jenny",
+      "edge_voice": "en-US-JennyNeural",
+      "unit": "ma",
+      "text": "ma",
+      "group": "soft",
+      "wav_path": "voice_units/edge_tts/female_jenny/ma.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_jenny",
+      "edge_voice": "en-US-JennyNeural",
+      "unit": "na",
+      "text": "na",
+      "group": "soft",
+      "wav_path": "voice_units/edge_tts/female_jenny/na.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_jenny",
+      "edge_voice": "en-US-JennyNeural",
+      "unit": "ya",
+      "text": "ya",
+      "group": "soft",
+      "wav_path": "voice_units/edge_tts/female_jenny/ya.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_jenny",
+      "edge_voice": "en-US-JennyNeural",
+      "unit": "wa",
+      "text": "wa",
+      "group": "soft",
+      "wav_path": "voice_units/edge_tts/female_jenny/wa.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_jenny",
+      "edge_voice": "en-US-JennyNeural",
+      "unit": "hey",
+      "text": "hey",
+      "group": "pop",
+      "wav_path": "voice_units/edge_tts/female_jenny/hey.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_jenny",
+      "edge_voice": "en-US-JennyNeural",
+      "unit": "yeah",
+      "text": "yeah",
+      "group": "pop",
+      "wav_path": "voice_units/edge_tts/female_jenny/yeah.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_jenny",
+      "edge_voice": "en-US-JennyNeural",
+      "unit": "ooh",
+      "text": "ooh",
+      "group": "pop",
+      "wav_path": "voice_units/edge_tts/female_jenny/ooh.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_jenny",
+      "edge_voice": "en-US-JennyNeural",
+      "unit": "woo",
+      "text": "woo",
+      "group": "pop",
+      "wav_path": "voice_units/edge_tts/female_jenny/woo.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_jenny",
+      "edge_voice": "en-US-JennyNeural",
+      "unit": "whoa",
+      "text": "whoa",
+      "group": "pop",
+      "wav_path": "voice_units/edge_tts/female_jenny/whoa.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_jenny",
+      "edge_voice": "en-US-JennyNeural",
+      "unit": "doo",
+      "text": "doo",
+      "group": "pop",
+      "wav_path": "voice_units/edge_tts/female_jenny/doo.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_jenny",
+      "edge_voice": "en-US-JennyNeural",
+      "unit": "ta",
+      "text": "ta",
+      "group": "consonant",
+      "wav_path": "voice_units/edge_tts/female_jenny/ta.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_jenny",
+      "edge_voice": "en-US-JennyNeural",
+      "unit": "ka",
+      "text": "ka",
+      "group": "consonant",
+      "wav_path": "voice_units/edge_tts/female_jenny/ka.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_jenny",
+      "edge_voice": "en-US-JennyNeural",
+      "unit": "sa",
+      "text": "sa",
+      "group": "consonant",
+      "wav_path": "voice_units/edge_tts/female_jenny/sa.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "female_jenny",
+      "edge_voice": "en-US-JennyNeural",
+      "unit": "sha",
+      "text": "sha",
+      "group": "consonant",
+      "wav_path": "voice_units/edge_tts/female_jenny/sha.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "male_guy",
+      "edge_voice": "en-US-GuyNeural",
+      "unit": "ah",
+      "text": "ah",
+      "group": "vowel",
+      "wav_path": "voice_units/edge_tts/male_guy/ah.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "male_guy",
+      "edge_voice": "en-US-GuyNeural",
+      "unit": "eh",
+      "text": "eh",
+      "group": "vowel",
+      "wav_path": "voice_units/edge_tts/male_guy/eh.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "male_guy",
+      "edge_voice": "en-US-GuyNeural",
+      "unit": "ee",
+      "text": "ee",
+      "group": "vowel",
+      "wav_path": "voice_units/edge_tts/male_guy/ee.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "male_guy",
+      "edge_voice": "en-US-GuyNeural",
+      "unit": "oh",
+      "text": "oh",
+      "group": "vowel",
+      "wav_path": "voice_units/edge_tts/male_guy/oh.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "male_guy",
+      "edge_voice": "en-US-GuyNeural",
+      "unit": "oo",
+      "text": "ooh",
+      "group": "vowel",
+      "wav_path": "voice_units/edge_tts/male_guy/oo.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "male_guy",
+      "edge_voice": "en-US-GuyNeural",
+      "unit": "uh",
+      "text": "uh",
+      "group": "vowel",
+      "wav_path": "voice_units/edge_tts/male_guy/uh.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "male_guy",
+      "edge_voice": "en-US-GuyNeural",
+      "unit": "la",
+      "text": "la",
+      "group": "soft",
+      "wav_path": "voice_units/edge_tts/male_guy/la.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "male_guy",
+      "edge_voice": "en-US-GuyNeural",
+      "unit": "ma",
+      "text": "ma",
+      "group": "soft",
+      "wav_path": "voice_units/edge_tts/male_guy/ma.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "male_guy",
+      "edge_voice": "en-US-GuyNeural",
+      "unit": "na",
+      "text": "na",
+      "group": "soft",
+      "wav_path": "voice_units/edge_tts/male_guy/na.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "male_guy",
+      "edge_voice": "en-US-GuyNeural",
+      "unit": "ya",
+      "text": "ya",
+      "group": "soft",
+      "wav_path": "voice_units/edge_tts/male_guy/ya.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "male_guy",
+      "edge_voice": "en-US-GuyNeural",
+      "unit": "wa",
+      "text": "wa",
+      "group": "soft",
+      "wav_path": "voice_units/edge_tts/male_guy/wa.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "male_guy",
+      "edge_voice": "en-US-GuyNeural",
+      "unit": "hey",
+      "text": "hey",
+      "group": "pop",
+      "wav_path": "voice_units/edge_tts/male_guy/hey.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "male_guy",
+      "edge_voice": "en-US-GuyNeural",
+      "unit": "yeah",
+      "text": "yeah",
+      "group": "pop",
+      "wav_path": "voice_units/edge_tts/male_guy/yeah.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "male_guy",
+      "edge_voice": "en-US-GuyNeural",
+      "unit": "ooh",
+      "text": "ooh",
+      "group": "pop",
+      "wav_path": "voice_units/edge_tts/male_guy/ooh.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "male_guy",
+      "edge_voice": "en-US-GuyNeural",
+      "unit": "woo",
+      "text": "woo",
+      "group": "pop",
+      "wav_path": "voice_units/edge_tts/male_guy/woo.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "male_guy",
+      "edge_voice": "en-US-GuyNeural",
+      "unit": "whoa",
+      "text": "whoa",
+      "group": "pop",
+      "wav_path": "voice_units/edge_tts/male_guy/whoa.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "male_guy",
+      "edge_voice": "en-US-GuyNeural",
+      "unit": "doo",
+      "text": "doo",
+      "group": "pop",
+      "wav_path": "voice_units/edge_tts/male_guy/doo.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "male_guy",
+      "edge_voice": "en-US-GuyNeural",
+      "unit": "ta",
+      "text": "ta",
+      "group": "consonant",
+      "wav_path": "voice_units/edge_tts/male_guy/ta.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "male_guy",
+      "edge_voice": "en-US-GuyNeural",
+      "unit": "ka",
+      "text": "ka",
+      "group": "consonant",
+      "wav_path": "voice_units/edge_tts/male_guy/ka.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "male_guy",
+      "edge_voice": "en-US-GuyNeural",
+      "unit": "sa",
+      "text": "sa",
+      "group": "consonant",
+      "wav_path": "voice_units/edge_tts/male_guy/sa.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "male_guy",
+      "edge_voice": "en-US-GuyNeural",
+      "unit": "sha",
+      "text": "sha",
+      "group": "consonant",
+      "wav_path": "voice_units/edge_tts/male_guy/sha.wav",
+      "generated_this_run": false
+    },
+    {
+      "voice_label": "male_andrew",
+      "edge_voice": "en-US-AndrewNeural",
+      "unit": "ah",
+      "text": "ah",
+      "group": "vowel",
+      "wav_path": "voice_units/edge_tts/male_andrew/ah.wav",
+      "generated_this_run": true
+    },
+    {
+      "voice_label": "male_andrew",
+      "edge_voice": "en-US-AndrewNeural",
+      "unit": "eh",
+      "text": "eh",
+      "group": "vowel",
+      "wav_path": "voice_units/edge_tts/male_andrew/eh.wav",
+      "generated_this_run": true
+    },
+    {
+      "voice_label": "male_andrew",
+      "edge_voice": "en-US-AndrewNeural",
+      "unit": "ee",
+      "text": "ee",
+      "group": "vowel",
+      "wav_path": "voice_units/edge_tts/male_andrew/ee.wav",
+      "generated_this_run": true
+    },
+    {
+      "voice_label": "male_andrew",
+      "edge_voice": "en-US-AndrewNeural",
+      "unit": "oh",
+      "text": "oh",
+      "group": "vowel",
+      "wav_path": "voice_units/edge_tts/male_andrew/oh.wav",
+      "generated_this_run": true
+    },
+    {
+      "voice_label": "male_andrew",
+      "edge_voice": "en-US-AndrewNeural",
+      "unit": "oo",
+      "text": "ooh",
+      "group": "vowel",
+      "wav_path": "voice_units/edge_tts/male_andrew/oo.wav",
+      "generated_this_run": true
+    },
+    {
+      "voice_label": "male_andrew",
+      "edge_voice": "en-US-AndrewNeural",
+      "unit": "uh",
+      "text": "uh",
+      "group": "vowel",
+      "wav_path": "voice_units/edge_tts/male_andrew/uh.wav",
+      "generated_this_run": true
+    },
+    {
+      "voice_label": "male_andrew",
+      "edge_voice": "en-US-AndrewNeural",
+      "unit": "la",
+      "text": "la",
+      "group": "soft",
+      "wav_path": "voice_units/edge_tts/male_andrew/la.wav",
+      "generated_this_run": true
+    },
+    {
+      "voice_label": "male_andrew",
+      "edge_voice": "en-US-AndrewNeural",
+      "unit": "ma",
+      "text": "ma",
+      "group": "soft",
+      "wav_path": "voice_units/edge_tts/male_andrew/ma.wav",
+      "generated_this_run": true
+    },
+    {
+      "voice_label": "male_andrew",
+      "edge_voice": "en-US-AndrewNeural",
+      "unit": "na",
+      "text": "na",
+      "group": "soft",
+      "wav_path": "voice_units/edge_tts/male_andrew/na.wav",
+      "generated_this_run": true
+    },
+    {
+      "voice_label": "male_andrew",
+      "edge_voice": "en-US-AndrewNeural",
+      "unit": "ya",
+      "text": "ya",
+      "group": "soft",
+      "wav_path": "voice_units/edge_tts/male_andrew/ya.wav",
+      "generated_this_run": true
+    },
+    {
+      "voice_label": "male_andrew",
+      "edge_voice": "en-US-AndrewNeural",
+      "unit": "wa",
+      "text": "wa",
+      "group": "soft",
+      "wav_path": "voice_units/edge_tts/male_andrew/wa.wav",
+      "generated_this_run": true
+    },
+    {
+      "voice_label": "male_andrew",
+      "edge_voice": "en-US-AndrewNeural",
+      "unit": "hey",
+      "text": "hey",
+      "group": "pop",
+      "wav_path": "voice_units/edge_tts/male_andrew/hey.wav",
+      "generated_this_run": true
+    },
+    {
+      "voice_label": "male_andrew",
+      "edge_voice": "en-US-AndrewNeural",
+      "unit": "yeah",
+      "text": "yeah",
+      "group": "pop",
+      "wav_path": "voice_units/edge_tts/male_andrew/yeah.wav",
+      "generated_this_run": true
+    },
+    {
+      "voice_label": "male_andrew",
+      "edge_voice": "en-US-AndrewNeural",
+      "unit": "ooh",
+      "text": "ooh",
+      "group": "pop",
+      "wav_path": "voice_units/edge_tts/male_andrew/ooh.wav",
+      "generated_this_run": true
+    },
+    {
+      "voice_label": "male_andrew",
+      "edge_voice": "en-US-AndrewNeural",
+      "unit": "woo",
+      "text": "woo",
+      "group": "pop",
+      "wav_path": "voice_units/edge_tts/male_andrew/woo.wav",
+      "generated_this_run": true
+    },
+    {
+      "voice_label": "male_andrew",
+      "edge_voice": "en-US-AndrewNeural",
+      "unit": "whoa",
+      "text": "whoa",
+      "group": "pop",
+      "wav_path": "voice_units/edge_tts/male_andrew/whoa.wav",
+      "generated_this_run": true
+    },
+    {
+      "voice_label": "male_andrew",
+      "edge_voice": "en-US-AndrewNeural",
+      "unit": "doo",
+      "text": "doo",
+      "group": "pop",
+      "wav_path": "voice_units/edge_tts/male_andrew/doo.wav",
+      "generated_this_run": true
+    },
+    {
+      "voice_label": "male_andrew",
+      "edge_voice": "en-US-AndrewNeural",
+      "unit": "ta",
+      "text": "ta",
+      "group": "consonant",
+      "wav_path": "voice_units/edge_tts/male_andrew/ta.wav",
+      "generated_this_run": true
+    },
+    {
+      "voice_label": "male_andrew",
+      "edge_voice": "en-US-AndrewNeural",
+      "unit": "ka",
+      "text": "ka",
+      "group": "consonant",
+      "wav_path": "voice_units/edge_tts/male_andrew/ka.wav",
+      "generated_this_run": true
+    },
+    {
+      "voice_label": "male_andrew",
+      "edge_voice": "en-US-AndrewNeural",
+      "unit": "sa",
+      "text": "sa",
+      "group": "consonant",
+      "wav_path": "voice_units/edge_tts/male_andrew/sa.wav",
+      "generated_this_run": true
+    },
+    {
+      "voice_label": "male_andrew",
+      "edge_voice": "en-US-AndrewNeural",
+      "unit": "sha",
+      "text": "sha",
+      "group": "consonant",
+      "wav_path": "voice_units/edge_tts/male_andrew/sha.wav",
+      "generated_this_run": true
+    }
+  ],
+  "failures": [],
+  "todos": [
+    "TODO: Verify TTS terms before using generated units for competition training.",
+    "TODO: Add pitch-shift/time-stretch sample renderer that consumes this bank."
+  ]
+}

@@ -177,13 +177,33 @@ class BasicPitchTorch(nn.Module):
             nn.Conv2d(CONV_ONSET_PRE + 1, 1, kernel_size=3, stride=1, padding="same"),
         )
 
+    @staticmethod
+    def _module_device(module: nn.Module) -> torch.device:
+        for parameter in module.parameters(recurse=True):
+            return parameter.device
+        for buffer in module.buffers(recurse=True):
+            return buffer.device
+        return torch.device("cpu")
+
     def _compute_cqt(self, inputs: Tensor) -> Tensor:
         if inputs.dim() == 3 and inputs.shape[-1] == 1:
             inputs = inputs.squeeze(-1)
         if inputs.dim() == 2:
             inputs = inputs.unsqueeze(1)
 
-        x = self.cqt_layer(inputs)
+        input_device = inputs.device
+        if input_device.type == "mps":
+            # nnAudio's CQT uses a large Conv1d kernel that exceeds the current
+            # MPS output-channel limit. Keep this fixed feature extractor on CPU,
+            # then move the resulting CQT features back to Apple Silicon for the
+            # trainable network layers.
+            if self._module_device(self.cqt_layer).type != "cpu":
+                self.cqt_layer.cpu()
+            with torch.no_grad():
+                x = self.cqt_layer(inputs.detach().cpu())
+            x = x.to(input_device)
+        else:
+            x = self.cqt_layer(inputs)
         x = torch.transpose(x, 1, 2)
         x = normalized_log(x)
         x = x.unsqueeze(1)

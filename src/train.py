@@ -344,13 +344,14 @@ def main():
     )
     print(f"Test dataset: {len(test_dataset)} samples")
 
-    test_loader = DataLoader(
-        test_dataset,
-        batch_size=1,
-        shuffle=False,
-        num_workers=min(os.cpu_count() // 3, 4),
-        multiprocessing_context='fork',
-    )
+    test_loader_kwargs = {
+        "batch_size": 1,
+        "shuffle": False,
+        "num_workers": args.num_workers,
+    }
+    if args.num_workers > 0:
+        test_loader_kwargs["multiprocessing_context"] = "fork"
+    test_loader = DataLoader(test_dataset, **test_loader_kwargs)
     print(f"Test batches: {len(test_loader)}")
 
     print("\nInitializing Basic Pitch model...")
