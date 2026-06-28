@@ -6,6 +6,60 @@ The goal is not to generate realistic lyrics. The goal is to generate label-pres
 
 Important implementation boundary: the current pure algorithmic backend is a debugging/baseline synthesizer, not a realistic human singer. It can keep labels aligned and make syllable changes audible, but realistic human timbre likely requires a sample-based or hybrid vocal backend.
 
+## Current Experiment Conclusion
+
+As of 2026-06-28, the practical result of the synthetic-data experiments is:
+
+```text
+complexity did not translate into better validation scores
+```
+
+We tried pure synthetic vowels/formants, Edge TTS word units, WORLD pitch
+replacement, gender/age/style grids, simple words, vowel-heavy units, detune,
+drift, vibrato, scoops/fall-ins, same-syllable multi-note groups, release and
+voiced-mask tuning, and fully simplified clean versions with no ornaments.
+
+The complex variants often made the audio sound worse: blurred consonants,
+unclear attacks, unstable pitch perception, repeated syllable attacks, or timing
+that felt less connected to the TSV. The simplified variants were cleaner and
+easier to verify, but the model evaluation still stayed around the low `0.1x`
+range. After removing most experimental effects, the result remained around
+`0.1x`.
+
+Therefore the current final strategy is conservative:
+
+```text
+keep labels exact
+keep audio simple
+avoid most ornamentation
+avoid age/style grids
+generate one gender-compatible sample per TSV
+accept that the final score may remain around the current 0.1x level
+```
+
+中文结论：
+
+截至 2026-06-28，目前 synthetic-data 实验的实际结论是：
+
+```text
+合成复杂度没有转化成更好的验证分数
+```
+
+我们尝试过纯算法元音/formant、Edge TTS 单词素材、WORLD 改音高、男女/年龄/风格网格、simple words、vowel-heavy units、detune、drift、vibrato、scoop/fall-in、单吐字连续多音、release/voiced-mask 调整，以及取消装饰音的极简版本。
+
+复杂版本经常带来更差的听感：辅音模糊、起音不清楚、pitch 感知不稳定、重复吐字攻击，或者节奏听起来和 TSV 不够贴。极简版本更干净、更容易验证，但模型评估仍然停留在低 `0.1x` 区间。即使取消大部分实验性效果，结果仍然大约是 `0.1x`。
+
+因此当前最终策略应保守：
+
+```text
+标签绝对准确
+音频尽量简单
+避免大部分装饰音
+避免 age/style 网格
+每个 TSV 只生成一个按音域匹配性别的样本
+接受最终结果可能仍在当前 0.1x 水平
+```
+
 ## Core Principle
 
 Each provided TSV contains only:
@@ -103,18 +157,23 @@ syntheticdataset/male/young/ah/audio.wav
 
 unless the official dataloader is changed. The safer design is to encode voice and generation settings in the sample folder name and `metadata.json`.
 
-## One TSV Generates Range-Compatible Age/Gender/Style WAVs
+## Historical Plan: One TSV Generates Range-Compatible Age/Gender/Style WAVs
+
+This section describes the earlier exploratory plan. It is kept for context,
+but it is no longer the recommended final dataset shape after the latest
+experiments.
 
 Each input TSV can generate one sample for each selected age, gender, and style
-combination. The debug full-grid setting is:
+combination. The debug full-grid setting was:
 
 ```text
 3 genders x 5 ages x 8 styles = 120 WAVs per TSV
 ```
 
-The current safer default is range-aware: compute the TSV pitch summary first,
-then skip age/gender presets whose broad singing range is incompatible with the
-score. Use `--voice-range-filter off` when the full debug grid is needed.
+The safer exploratory default was range-aware: compute the TSV pitch summary
+first, then skip age/gender presets whose broad singing range is incompatible
+with the score. Use `--voice-range-filter off` only when the full debug grid is
+needed.
 
 A generated sample is:
 
@@ -136,6 +195,21 @@ source score.tsv -> copied score.tsv
 Only the rendered audio differs across generated samples. The default generator
 does not need an extra random `version` dimension; `version_index` remains as a
 repeat/debug knob and defaults to one repeat per age/gender/style combination.
+
+Current final recommendation:
+
+```text
+one source TSV
++ one automatically selected gender-compatible voice
++ middle/normal age behavior only
++ clean/basic style only
++ no same-syllable group rendering
++ no age/style expansion
+-> one audio.wav
+```
+
+This is less ambitious, but it avoids multiplying low-quality variations that
+did not improve validation metrics.
 
 ## Fixed Per Generated WAV
 
@@ -163,6 +237,17 @@ female
 neutral
 ```
 
+Current final run keeps only:
+
+```text
+male
+female
+```
+
+The `neutral` category and age categories were useful for exploration, but the
+generated differences were not reliable enough to justify using them in the
+final dataset.
+
 Recommended age-like timbre categories:
 
 ```text
@@ -172,6 +257,9 @@ young
 middle
 old
 ```
+
+Current final run does not use separate age categories. The middle/normal voice
+behavior is used as the stable default.
 
 These should affect parameters such as:
 
@@ -264,6 +352,10 @@ vibrato_light:      soft_syllable_mix, mild detune, light vibrato, light_scoop
 vibrato_expressive: pop_syllable_mix, expressive detune, expressive vibrato, expressive_slide
 ```
 
+Current final run uses only the clean/basic behavior. The earlier style grid is
+kept as an exploratory option, but it did not produce a reliable improvement in
+the low-`0.1x` validation range.
+
 ### Pitch Imperfection Policy
 
 The nominal target pitch remains the TSV MIDI pitch. The policy defines how much micro-detuning is allowed.
@@ -275,6 +367,10 @@ intune
 mild_detune
 expressive_detune
 ```
+
+Current final simplified run may disable both noticeable detune and drift. These
+policies remain documented for future experiments, but they did not provide a
+clear score improvement in the current setup.
 
 Every note may have tiny natural micro-variation. This is not treated as
 "running out of tune"; it is just normal human-like pitch-center variation.
@@ -321,6 +417,10 @@ normal
 expressive
 ```
 
+Current final simplified run may disable vibrato. The tested vibrato settings
+either sounded artificial in the WORLD/TTS renderer or did not improve the
+validation score enough to keep by default.
+
 Suggested ranges:
 
 ```text
@@ -352,6 +452,10 @@ light_scoop
 pop_scoop
 expressive_slide
 ```
+
+Current final simplified run may disable decorative pitch transitions entirely.
+Earlier transition experiments became audible only with exaggerated settings,
+but realistic settings did not translate into a clear validation gain.
 
 Definitions:
 
@@ -461,6 +565,12 @@ ah, ah, la, oh, ee, ma, na, ooh, yeah, ah
 Some TSV note sequences should be rendered as one syllable carried across
 several labeled pitches. This models a purposeful sung line such as `la-a-a`,
 not a decorative scoop inside a single note.
+
+Current final simplified run disables same-syllable group rendering. The idea is
+musically valid, but the current TTS/WORLD implementation often sounded like
+repeated attacks or unstable pitch movement rather than one continuous sung
+vowel. It is safer to keep each labeled note independently rendered for the
+final dataset.
 
 Candidate rule:
 

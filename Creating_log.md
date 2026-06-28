@@ -2947,3 +2947,95 @@
 **剩余风险 / TODO：**
 - 实际 MPS 分支仍需要用户在 Apple Silicon 终端中验证，因为当前 Codex runtime 只暴露 CPU。
 - 每个 batch 的 CQT 在 CPU 上算会降低一部分 MPS 加速收益，但仍应明显好于整个训练都跑 CPU。
+
+## 2026-06-28 11:18 — Synthetic Dataset Experiment Conclusion
+
+### English
+
+**Files changed:**
+- `ProjectPlan.md`
+- `SyntheticVoiceDatasetDesign.md`
+- `Creating_log.md`
+
+**What changed:**
+- Documented the current experimental conclusion that many synthetic singing variants were tried, but the validation results still stayed around the low `0.1x` range.
+- Updated the project plan to state that the final priority is reproducibility, label alignment, and a clean submission rather than more synthesis complexity.
+- Updated the dataset design document to mark the gender/age/style grid and ornament-heavy ideas as historical exploratory options rather than the recommended final dataset shape.
+
+**Code changes:**
+- No code was changed in this entry.
+- The change is documentation-only.
+
+**Thought process:**
+- The user reported that after trying many complicated synthesis variants, and then removing most of the messy effects, the score still remained around `0.1x`.
+- That means the documentation should no longer present every complex strategy as equally promising.
+- The docs now record the practical conclusion so future work does not waste time re-adding effects that already sounded poor or failed to improve validation.
+
+**Why this code/change was added:**
+- To preserve the experimental learning from the current training runs and make the final project direction clear.
+- To keep future commands and submissions focused on a conservative, reproducible dataset.
+
+**Why the previous code needed to change:**
+- The previous documents still emphasized broad synthesis variety, age/style grids, detune, vibrato, transitions, and same-syllable groups as planned strategies.
+- After the experiments, those ideas are better treated as historical exploration, not as the final recommendation.
+
+**Problems encountered:**
+- The repository currently has many staged WAV untracking changes from the previous `git rm --cached -- '*.wav'` operation, so `git status` is very noisy.
+- The documentation had line wrapping that made one large patch fail.
+
+**Solution:**
+- Avoided touching the WAV status and only edited the requested Markdown documents.
+- Split the dataset design update into smaller targeted patches.
+
+**Better result / user experience:**
+- The docs now honestly reflect the current state: complex synthetic singing ideas did not lift the score beyond the low `0.1x` range, and the final result may realistically stay there.
+- Future work can focus on clean final generation, training completion, checkpoint selection, and submission packaging.
+
+**Remaining risks / TODOs:**
+- Exact final metrics should be filled in if a final training run reports a stable best checkpoint score.
+- If a new external or higher-quality singing synthesis backend becomes available, the current conclusion should be revisited.
+
+### 中文
+
+**修改文件：**
+- `ProjectPlan.md`
+- `SyntheticVoiceDatasetDesign.md`
+- `Creating_log.md`
+
+**修改内容：**
+- 记录当前实验结论：已经尝试过很多 synthetic singing 方案，但验证结果仍然停留在低 `0.1x` 区间。
+- 更新项目计划，说明最终优先级应转向可复现、标签对齐和清晰提交，而不是继续增加合成复杂度。
+- 更新数据集设计文档，把 gender/age/style 网格和大量装饰性效果标记为历史探索方案，而不是当前推荐的最终数据集形态。
+
+**代码变化：**
+- 本次没有修改代码。
+- 本次是纯文档更新。
+
+**思考流程：**
+- 用户反馈：复杂合成尝试了一大堆，后来把大部分乱七八糟的效果都取消了，结果仍然是 `0.1x` 左右。
+- 这说明文档不应该继续把所有复杂策略都写成同等有希望的方向。
+- 现在文档记录了实际实验教训，避免后续又浪费时间重新添加已经听感差或没有提升验证结果的效果。
+
+**为什么添加这个代码/修改：**
+- 保存当前训练和听感实验得到的结论，让最终项目方向更清楚。
+- 让后续命令和提交集中在保守、可复现的数据集上。
+
+**为什么之前的代码需要修改：**
+- 之前文档仍然强调广泛合成多样性、age/style 网格、detune、vibrato、transition、same-syllable group 等计划。
+- 经过实验后，这些内容更适合作为历史探索记录，而不是最终推荐方案。
+
+**遇到的问题：**
+- 仓库当前有上一轮 `git rm --cached -- '*.wav'` 造成的大量 WAV untrack 状态，所以 `git status` 非常吵。
+- 文档原有换行和预期不完全一致，导致第一次大补丁失败。
+
+**解决方式：**
+- 不触碰 WAV 状态，只编辑用户要求的 Markdown 文档。
+- 把数据集设计文档更新拆成更小、更精确的 patch。
+
+**带来的更好效果 / 用户体验：**
+- 文档现在诚实反映当前状态：复杂 synthetic singing 方案没有把分数拉出低 `0.1x` 区间，最终结果可能现实上也就是这个水平。
+- 后续可以专注于最终生成、训练完成、checkpoint 选择和提交打包。
+
+**剩余风险 / TODO：**
+- 如果最终训练 run 给出稳定 best checkpoint 分数，应该把具体最终指标补进文档。
+- 如果后续能使用更高质量的外部 singing synthesis backend，需要重新评估当前结论。

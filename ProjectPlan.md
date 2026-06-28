@@ -4,6 +4,20 @@
 
 This repository is now planned around the **Synthetic Vocal Generation** challenge. The previous project direction was a Cyanite music recommendation prototype, but the confirmed hackathon task is now Klangio's synthetic vocal generation challenge.
 
+Current experimental status as of 2026-06-28:
+
+- We tried several synthetic singing dataset variants, including pure algorithmic synthesis, Edge TTS word-unit synthesis, WORLD pitch replacement, gender/age/style grids, same-syllable multi-note groups, detune, drift, vibrato, scoops/fall-ins, release tuning, voiced-mask tuning, simple-word units, and finally a heavily simplified vowel-only / clean-pitch version.
+- The more complex variants often sounded less natural or blurred note onsets, offsets, or perceived pitch. The simplified variants were cleaner but still did not materially improve the validation result.
+- Multiple training runs stayed around the low `0.1x` range on the key evaluation scores. After removing most "messy" synthesis effects, the result was still around `0.1x`, so the current expectation is that this synthetic-data approach may be close to its practical ceiling for this hackathon.
+- The current priority is therefore reproducibility, label alignment, and a clean final submission rather than adding more synthesis complexity.
+
+当前实验状态（2026-06-28）：
+
+- 我们已经尝试过多种 synthetic singing dataset 方案，包括纯算法合成、Edge TTS 单词素材、WORLD 改音高、gender/age/style 网格、单吐字连续多音、detune、drift、vibrato、装饰性转音、release 调整、voiced-mask 调整、simple-word 素材，以及最后的 vowel-only / clean-pitch 极简版本。
+- 复杂版本经常听感更不自然，或者让 note onset、offset、perceived pitch 更模糊。简化版本更干净，但验证结果没有明显改善。
+- 多个训练版本的关键评估分数都停留在低 `0.1x` 区间。即使取消大部分“乱七八糟”的合成效果，结果仍然大约是 `0.1x`，所以目前判断这个 synthetic-data 方案在本次 hackathon 里可能已经接近实际上限。
+- 当前优先级应转为：可复现、标签对齐、最终提交清晰，而不是继续增加更多复杂合成效果。
+
 Important distinction:
 
 - **Challenge requirements** are the parts explicitly stated by the organizer: generate singing from provided score annotations, train the provided transcription model using the synthetic data, and submit the singing-generation code plus trained weights/checkpoint.
@@ -296,6 +310,17 @@ Important rule:
 audio.wav and score.tsv must stay aligned.
 ```
 
+Current final practical choice:
+
+```text
+one input TSV -> one selected gender-compatible WAV
+```
+
+The full gender/age/style grid remains useful as code history and exploration,
+but the latest experiments suggest it does not improve the current validation
+result enough to justify the extra noise and runtime. The cleaner final dataset
+should prefer fewer, better-aligned samples over many heavily processed samples.
+
 中文：
 
 本节是**实现假设**，不是 PDF 里写死的硬性要求。最终目录结构必须以官方 Klangio repo 的 dataloader 为准。
@@ -308,6 +333,14 @@ score.tsv
 ```
 
 如果官方 dataloader 允许，同一个 score 可以生成多个不同版本，比如 clean、breathy、vibrato。但每个版本都必须保证 `audio.wav` 和 `score.tsv` 对齐。
+
+当前实际最终取舍：
+
+```text
+一个输入 TSV -> 一个按音域选择性别的 WAV
+```
+
+完整的 gender/age/style 网格仍然可以作为代码历史和探索方向保留，但最新实验说明它对当前验证结果没有足够明显的提升，反而会增加噪声和生成时间。因此最终数据集更应该选择更少、更对齐的样本，而不是大量复杂处理后的样本。
 
 
 ---

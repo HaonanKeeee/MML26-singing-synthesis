@@ -1,3 +1,6 @@
 *.pyc
 .python-version
 venv/
+
+# Generated and dataset audio files should stay local.
+*.wav
